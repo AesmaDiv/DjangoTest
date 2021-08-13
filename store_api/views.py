@@ -1,11 +1,15 @@
 from rest_framework.response import Response
 from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
 from store_api.serilizers import *
+from store_api.filters import ProductFilterSet
 
 
 class ProductListView(generics.ListAPIView):
     serializer_class = ProductListSerializer
     queryset = Product.objects.filter(deleted=False)
+    filter_backends = (DjangoFilterBackend, )
+    filterset_class = ProductFilterSet
 
 
 class ProductCreateView(generics.CreateAPIView):
@@ -40,11 +44,11 @@ class CategoryDetailView(generics.RetrieveUpdateDestroyAPIView):
         id_ = kwargs['pk']
         obj = Category.objects.get(id=id_)
         chains = Product.categories.through.objects.filter(category_id=id_)
-        print(chains)
         if chains.count() > 0:
-            ### ERROR
-            serializer = ProductListSerializer(queryset=chains, many=True)
-            return Response(serializer.data)
+            response = {
+                "detail": "Category cant be deleted while has linked products",
+            }
+            return Response(response)
         obj.deleted = True
         obj.save()
         return Response(self.get_serializer(obj).data)

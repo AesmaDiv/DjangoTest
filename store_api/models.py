@@ -13,10 +13,5 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     amount = models.IntegerField()
     categories = models.ManyToManyField(Category)
+    posted = models.BooleanField(default=True)
     deleted = models.BooleanField(default=False)
-
-
-class ProductCategory(models.Model):
-    product_id = models.ForeignKey(Product, on_delete=models.PROTECT)
-    category_id = models.ForeignKey(Category, on_delete=models.PROTECT)
-
